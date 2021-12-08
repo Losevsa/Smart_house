@@ -114,6 +114,7 @@ int main()
 		}
 		else std::cout << "AIR_COND - off" << std::endl;
 
+		
 		buffer.str("");
 		buffer.clear();
 	}
