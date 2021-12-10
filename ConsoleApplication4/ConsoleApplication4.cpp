@@ -35,6 +35,7 @@ enum switches {
 int main()
 {	
 	int status = 0;
+	int kelvin = 5000;
 	std::stringstream buffer;
 	std::string temp, movement = "no", lights = "off";
 	int tempInside = 25, tempOutside = 15;
@@ -90,6 +91,11 @@ int main()
 		}
 		else if (tempInside < 26) {
 			status &= ~AIR_COND;
+		}
+
+		//5000 - 2700 
+		if (lights == "on") {
+
 		}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
