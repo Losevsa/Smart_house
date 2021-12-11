@@ -35,94 +35,122 @@ enum switches {
 int main()
 {	
 	int status = 0;
-	int kelvin = 5000;
+	int k = 5000;
 	std::stringstream buffer;
 	std::string temp, movement = "no", lights = "off";
 	int tempInside = 25, tempOutside = 15;
 	int hour = 0;
+	int day = 1;
 	std::cout << "Smart house..." << std::endl;
 
 
 	
 	while (true) {
-		hour++;
 		std::cout << std::endl;
 		std::cout << "Enter sensor readings(temp outside '15', temp inside '25', movement 'No', lights 'No')" << std::endl;
 		std::getline(std::cin, temp);
-
+		system("cls");
 		buffer << temp;
 		buffer >> tempOutside >> tempInside >> movement >> lights;
-		std::cout << buffer.str() << std::endl;
+		
 
-
+		std::cout << "Day: " << day << ". Time: " << hour << ":00" << std::endl;
 		std::cout << "Current temperature outside: " << tempOutside << std::endl;
 		std::cout << "Current temperature inside: " << tempInside << std::endl;
 		std::cout << "There is movement otside: " << movement << std::endl;
 		std::cout << "Light in the house: " << lights << std::endl;
+		std::cout << "------------------------------------------" << std::endl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// вкл/выкл датчики
 
 		// проверка на температуру вне дома и включении подогрева труб
 		if (tempOutside < 0) {
-			status |= TEMP_WATER_PIPES;
+			if (!(status & TEMP_WATER_PIPES)) {
+				status |= TEMP_WATER_PIPES;
+				std::cout << "Pipes - on" << std::endl;
+			}
 		}
 		else if (tempOutside > 5) {
-			status &= ~TEMP_WATER_PIPES;
+			if (status & TEMP_WATER_PIPES) {
+				status &= ~TEMP_WATER_PIPES;
+				std::cout << "Pipes - off" << std::endl;
+			}
+			
 		}
 
 		// с 16:00 до 5:00 - свет вкл, если есть движение
 		if ((hour >= 16 || hour <= 5) && movement == "yes") {
-			status |= LIGHT_OUTSIDE;
+			if (!(status & LIGHT_OUTSIDE)) {
+				status |= LIGHT_OUTSIDE;
+				std::cout << "LIGHT_OUTSIDE - on" << std::endl;
+			}
+			
 		}
-		else status &= ~LIGHT_OUTSIDE;
+		else if (status & LIGHT_OUTSIDE) {
+			std::cout << "LIGHT_OUTSIDE - off" << std::endl;
+			status &= ~LIGHT_OUTSIDE;
+		}
 
 		//темпреаптруа в доме ниже 22 отопление вкл, темпреатруа выше 24 отопление выкл
 		if (tempInside < 22) {
-			status |= TEMP_INSIDE;
+			if (!(status & TEMP_INSIDE)) {
+				status |= TEMP_INSIDE;
+				std::cout << "TEMP_INSIDE - on" << std::endl;
+			}
+			
 		}
 		else if (tempInside > 24) {
-			status &= ~TEMP_INSIDE;
+			if (status & TEMP_INSIDE) {
+				status &= ~TEMP_INSIDE;
+				std::cout << "TEMP_INSIDE - off" << std::endl;
+			}
+			
 		}
 
 		// enable air cond
 		if (tempInside > 30) {
-			status |= AIR_COND;
+			if (!(status & AIR_COND)) {
+				status |= AIR_COND;
+				std::cout << "AIR_COND - on" << std::endl;
+			}
+			
 		}
 		else if (tempInside < 26) {
-			status &= ~AIR_COND;
+			if (status & AIR_COND) {
+				status &= ~AIR_COND;
+				std::cout << "AIR_COND - off" << std::endl;
+			}
+			
 		}
 
 		//5000 - 2700 
-		if (lights == "on") {
-
+		
+		if (hour == 16) k = 4540;
+		else if (hour == 17) k = 4080;
+		else if (hour == 18) k = 3620;
+		else if (hour == 19) k = 3160;
+		else if (hour == 20) k = 2700;
+		else if (hour == 0) k = 5000;
+		if (lights == "on" && (hour >= 16 && hour <= 20)) {
+			if (!(status & LIGHT_INSIDE_HOME)) {
+				status |= LIGHT_INSIDE_HOME;
+				std::cout << "Light in home - on, " << k << "K" << std::endl;
+			}
+		}
+		else if (lights == "on") {
+			if (!(status & LIGHT_INSIDE_HOME)) {
+				status |= LIGHT_INSIDE_HOME;
+				std::cout << "Light in home - on, " << k << "K" << std::endl;
+			}
+		}
+		else if (status & LIGHT_INSIDE_HOME) {
+			status &= ~LIGHT_INSIDE_HOME;
+			std::cout << "Light in home - off" << std::endl;
 		}
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		// выводим
-		if (status & TEMP_WATER_PIPES) {
-			std::cout << "Pipes - on" << std::endl;
-		}
-		else std::cout << "Pipes - off" << std::endl;
-
-		if (status & LIGHT_OUTSIDE) {
-			std::cout << "LIGHT_OUTSIDE - on" << std::endl;
-		}
-		else std::cout << "LIGHT_OUTSIDE - off" << std::endl;
-
-		if (status & TEMP_INSIDE) {
-			std::cout << "TEMP_INSIDE - on" << std::endl;
-		}
-		else std::cout << "TEMP_INSIDE - off" << std::endl;
-		if (status & AIR_COND) {
-			std::cout << "AIR_COND - on" << std::endl;
-		}
-		else std::cout << "AIR_COND - off" << std::endl;
-
-		 
 		buffer.str("");
 		buffer.clear();
 	}
-	system("cls");
+	
 }
